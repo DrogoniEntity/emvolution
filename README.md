@@ -1,36 +1,53 @@
-# Emvolution
+# Emvolution (fork)
 
 A work-in-progress Wii game file replacement engine written for the BrainSlug game patching utility.
 
-Tested and confirmed to be working on Mario Kart Wii (RMCP, RMCE, RMCJ).
+Tested and confirmed to be working on Mario Kart Wii PAL (RMCP).
 
-## TODO
+The aim of this fork is to provide the ability to define which files to replace without needing to recompile
+this module.
 
-- Improve symbols in `dvd.xml`
-- Add DVDReadAsyncPrio support
-- Allow for custom end user specified files (e.g. "My Stuff" folder)
-- Add support for additional DVD functions (such as directories), may be required for some games
-- Add USB support (requires creation of a libfat-usb driver for BrainSlug)
+## How to use it ?
 
-## For end users:
+This module depends on `libfat.mod`, `libsd.mod` and `libfat-sd.mod`. You can compile them from
+[Brainslug's repository](https://github.com/Chadderz121/brainslug-wii/tree/master/modules). You also need
+to put DVD's symbols into `bslug/symbols` (you can find it from `symbols/dvd.xml`).
 
-Right now, there is no way for an end user to take advantage of Emvolution unless it is included with a distribution with everything prepared. In the future, there may be a version allowing you to use a folder on your SD card out of the box from a release download.
+When module is installed you can begin to define each files should be replaced. By default,
+all custom files are located to `sd:/custom/????/files` with `????` correspond to disc'ID (for example,
+Mario Kart Wii PAL is `RMCP`, Super Smash Bros. Brawl NTSC-U is `RSBE`). Moreover, you need to create a TXT file at
+`sd:/custom/????/replacements.txt` where each lines correspond to a file to replace. Example of `replacemements.txt`:
+```
+/Demo/Award.szs
+/Scene/UI/Award.szs
+/sound/revo_kart.brsar
+```
+I haven't yet tested module's behaviour with CRLF end lines and empty lines. Filepaths must begin with `/`.
 
-## For developers: How to use
+For more informations, please look at original's [README](https://github.com/InvoxiPlayGames/emvolution/blob/master/README.md).
+This version still at an early stage, not every DVD's functions are hooked and may not working properly. 
+
+## Limitations
+
+Since Brainslug discourage to use dynamic allocation, everything is static. So, you can't replace more than
+512 files and filepath can't be longer than 256 characters.
+
+You can change these restrictions from `replacements.h`.
+
+## Module configuration
+
+The following constants can be changed from `replacements.h` :
+- `CUSTOM_FILES_DIRECTORY`: Location of custom files to use
+- `CUSTOM_FILES_REPLACEMENTS_TXT`: Location of `replacements.txt`
+- `MAX_FILE_COUNT`: Maximum allowed files to replace
+- `MAX_NAME_LENGTH`: Maximum filepath's length
+
+## Building
+
+The process to build still the same from original repository :
 
 1. [Install the latest devkitPPC and libogc.](https://devkitpro.org/wiki/Getting_Started)
 2. Download the latest [BrainSlug](https://github.com/Chadderz121/brainslug-wii) source code and run `make install` to install the required files.
-3. Edit `replacements.h` - simply add your replacements in the form of `{ "/file/to/replace", "sd:/replacement/file" }` into the replacements array. For example:
-    ```c
-    const char* replacements[][2] = {
-        { "/Boot/Strap/eu/English.szs", "sd:/custom/Strap.szs" },
-        { "/Scene/UI/MenuSingle.szs", "sd:/custom/MenuSingle.szs" },
-        { "/Scene/UI/MenuSingle_E.szs", "sd:/custom/MenuSingle_E.szs" },
-        { "/rel/lecode-PAL.bin", "sd:/custom/lecode-PAL.bin" },
-    };
-    ```
-4. Run `make` inside the Emvolution project directory.
-5. Load the resulting `emvolution.mod` module with your BrainSlug channel.
-    - Make sure you have the `dvd.xml` file loaded as a symbol as well as the default BrainSlug symbols, and make sure that you have `libfat.mod`, `libsd.mod` and `libfat-sd.mod` loaded too.
+3. Run `make` inside the Emvolution project directory. It will produce `emvolution.mod` inside `bin` directory.
 
-**Note:** Unlike Riivolution, you can not replace the main executable (main.dol) of a game using this method. Please use a BrainSlug module to apply the necessary patches to the game executable. Files dynamically linked into the game (.rel) can still be replaced, however it's advised to also use a BrainSlug module to patch these files upon OSLink to avoid redistributing game content, and to keep downloads smaller.
+Now, you can install it into `bslug/modules`!
