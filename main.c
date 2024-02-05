@@ -6,7 +6,8 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-#include "dvd.h"
+
+#include <rvl/dvd.h>
 #include "replacements.h"
 
 BSLUG_MODULE_GAME("????");

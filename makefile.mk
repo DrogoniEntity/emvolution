@@ -4,7 +4,7 @@
 # The source files to compile.
 SRC      := main.c
 # Include directories
-INC_DIRS := 
+INC_DIRS := include
 # Library directories
 LIB_DIRS :=
 # The names of libraries to use.
